@@ -1,9 +1,7 @@
 package main
 
-func init() {
-
-}
+import "github.com/abhilasha336/thinkpalm/app"
 
 func main() {
-
+	app.InitialRun()
 }

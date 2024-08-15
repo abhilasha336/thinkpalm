@@ -11,15 +11,22 @@ import (
 	"time"
 
 	"github.com/abhilasha336/thinkpalm/configenv"
+	"github.com/abhilasha336/thinkpalm/internal/constants"
+	"github.com/abhilasha336/thinkpalm/internal/controllers"
+	"github.com/abhilasha336/thinkpalm/internal/dstructures"
+	"github.com/abhilasha336/thinkpalm/internal/repodb"
+	"github.com/abhilasha336/thinkpalm/internal/repodb/driver"
+	"github.com/abhilasha336/thinkpalm/internal/usecaseslogic"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"gitlab.com/tuneverse/toolkit/middleware"
+	_ "github.com/lib/pq"
+	"github.com/sirupsen/logrus"
 )
 
 // set up all initial configurations for server
 func InitialRun() {
 	// init the env config
-	cfg, err := configenv.LoadConfig(consts.AppName)
+	cfg, err := configenv.LoadConfig(constants.AppName)
 	if err != nil {
 		panic(err)
 	}
@@ -27,7 +34,7 @@ func InitialRun() {
 	// database connection
 	pgsqlDB, err := driver.ConnectDB(cfg.Db)
 	if err != nil {
-		log.Fatalf("unable to connect the database")
+		logrus.Fatalf("unable to connect the database", err)
 		return
 	}
 
@@ -42,25 +49,17 @@ func InitialRun() {
 	// m := middlewares.NewMiddlewares(cfg, pgsqlDB)
 	// api.Use(m.JwtMiddleware())
 
-	// middleware from toolkit/middleware  to intialise log middleware
-	api.Use(middleware.LogMiddleware(map[string]interface{}{}))
-
-	//middleware from toolkit/middleware  to intialise version middleware
-	api.Use(middleware.APIVersionGuard(middleware.VersionOptions{
-		AcceptedVersions: cfg.AcceptedVersions,
-	}))
-
 	// complete user related initialization
 	{
 
 		// repo initialization
-		oauthRepo := repo.NewOauthRepo(pgsqlDB, cfg)
+		thinkpalmRepo := repodb.NewThinkpalmRepo(pgsqlDB, cfg)
 		// initilizing usecases
-		oauthUseCases := usecases.NewOauthUseCase(oauthRepo, entities.OAuthData{})
+		thinkpalmUseCases := usecaseslogic.NewThinkpalmUseCase(thinkpalmRepo)
 		// initalizing controllers
-		oauthControllers := controllers.NewOauthController(api, oauthUseCases, cfg, &entities.OAuthCredentials{})
+		thinkpalmControllers := controllers.NewThinkpalmController(api, thinkpalmUseCases, cfg)
 		// init the routes
-		oauthControllers.InitRoutes()
+		thinkpalmControllers.InitRoutes()
 
 	}
 
@@ -82,7 +81,7 @@ func initRouter() *gin.Engine {
 	router.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"*", "http://localhost:8080"},
 		AllowMethods:     []string{"PUT", "PATCH", "POST", "DELETE", "GET", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Type", "client_id", "client_secret", "partner_id", "provider"},
+		AllowHeaders:     []string{"Origin", "Content-Type"},
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 		// AllowOriginFunc: func(origin string) bool {
@@ -96,7 +95,7 @@ func initRouter() *gin.Engine {
 }
 
 // launch
-func launch(cfg *entities.EnvConfig, router *gin.Engine) {
+func launch(cfg *dstructures.EnvConfig, router *gin.Engine) {
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%v", cfg.Port),
 		Handler: router,

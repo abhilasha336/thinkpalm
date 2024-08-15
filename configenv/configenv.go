@@ -4,14 +4,15 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/abhilasha336/thinkpalm/internal/dstructures"
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
 )
 
 // LoadConfig function used to load environment variab from env variable
-func LoadConfig(appName string) (*entities.EnvConfig, error) {
+func LoadConfig(appName string) (*dstructures.EnvConfig, error) {
 
-	var cfg entities.EnvConfig
+	var cfg dstructures.EnvConfig
 
 	if _, err := os.Stat(".env"); err == nil {
 		println("[ENV] Load env variables from .env")
