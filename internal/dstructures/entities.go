@@ -21,3 +21,14 @@ type Database struct {
 	MaxActive int
 	MaxIdle   int
 }
+
+type LoginRequest struct {
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}
+
+type LoginRequestCheck struct {
+	Id       int    `json:"id"`
+	Username string `json:"username" binding:"required"`
+	Password string `json:"password" binding:"required"`
+}

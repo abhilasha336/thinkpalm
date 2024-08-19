@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func (think *ThinkpalmController) Login(ctx *gin.Context) {
+func (think *ThinkpalmController) Failure(ctx *gin.Context) {
 	// Pass the data to the template
-	ctx.HTML(http.StatusOK, "login.html", nil)
+	ctx.HTML(http.StatusOK, "failure.html", nil)
 }

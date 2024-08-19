@@ -28,12 +28,24 @@ func (think *ThinkpalmController) InitRoutes() {
 	think.router.GET("/health", func(ctx *gin.Context) {
 		think.HealthHandler(ctx)
 	})
-	think.router.GET("/login", func(ctx *gin.Context) {
-		think.LogIn(ctx)
+	think.router.POST("/register-user", func(ctx *gin.Context) {
+		think.RegisterUser(ctx)
+	})
+	think.router.POST("/login-user", func(ctx *gin.Context) {
+		think.LoginUser(ctx)
 	})
 
-	think.router.POST("/register", func(ctx *gin.Context) {
+	think.router.GET("/register", func(ctx *gin.Context) {
 		think.Register(ctx)
+	})
+	think.router.GET("/login", func(ctx *gin.Context) {
+		think.Login(ctx)
+	})
+	think.router.GET("/success", func(ctx *gin.Context) {
+		think.Success(ctx)
+	})
+	think.router.GET("/failure", func(ctx *gin.Context) {
+		think.Failure(ctx)
 	})
 
 }

@@ -3,9 +3,9 @@ package repodb
 import (
 	"context"
 	"database/sql"
+	"errors"
 
 	"github.com/abhilasha336/thinkpalm/internal/dstructures"
-	"github.com/sirupsen/logrus"
 )
 
 // ThinkpalmRepo holds db and config
@@ -16,7 +16,8 @@ type ThinkpalmRepo struct {
 
 // THinkpalmRepoImply which implements functions
 type ThinkpalmRepoImplements interface {
-	GetPartnerId(ctx context.Context, clientID, clientSecret string) (string, string, error)
+	RegisterUser(ctx context.Context, user dstructures.LoginRequest) error
+	LoginUser(ctx context.Context, user dstructures.LoginRequest) error
 }
 
 // NewTHinkpalmRepo used to assign values to both database and config
@@ -28,38 +29,25 @@ func NewThinkpalmRepo(repo *sql.DB, cfg *dstructures.EnvConfig) ThinkpalmRepoImp
 }
 
 // fn which retrieves partnerid with client id and client secret
-func (think *ThinkpalmRepo) GetPartnerId(ctx context.Context, clientID, clientSecret string) (string, string, error) {
+func (think *ThinkpalmRepo) RegisterUser(ctx context.Context, user dstructures.LoginRequest) error {
 
-	var (
-		partnerID, redirectUri string
-		err                    error
-	)
-
-	GetCredentials := `
-	SELECT 
-		partner_id,redirect_uri 
-	FROM partner_api_credential
-	WHERE
-	client_id=$1
-	AND
-	client_secret=$2
-	`
-	row := think.repo.QueryRowContext(
-		ctx,
-		GetCredentials,
-		clientID,
-		clientSecret,
-	)
-
-	err = row.Scan(
-		&partnerID,
-		&redirectUri,
-	)
+	_, err := think.repo.Exec("INSERT INTO users (username, password) VALUES ($1, $2)", user.Username, user.Password)
 	if err != nil {
-		logrus.Errorf("GetPartnerId- scan error:%v", err)
-		return "", "", err
+		return errors.New("repo user insertion failed::" + err.Error())
 	}
 
-	return partnerID, redirectUri, nil
+	return nil
+
+}
+
+func (think *ThinkpalmRepo) LoginUser(ctx context.Context, user dstructures.LoginRequest) error {
+	var check dstructures.LoginRequestCheck
+
+	rows := think.repo.QueryRow("select * from users where username=$1 and password=$2", user.Username, user.Password)
+	err := rows.Scan(&check.Id, &check.Username, &check.Password)
+	if check.Id == 0 {
+		return errors.New("repo login error" + err.Error())
+	}
+	return nil
 
 }

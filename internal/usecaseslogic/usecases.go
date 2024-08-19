@@ -3,6 +3,7 @@ package usecaseslogic
 import (
 	"context"
 
+	"github.com/abhilasha336/thinkpalm/internal/dstructures"
 	"github.com/abhilasha336/thinkpalm/internal/repodb"
 )
 
@@ -13,7 +14,8 @@ type ThinkpalmUseCase struct {
 
 // THinkpalmUsecaseImply which implements functions
 type ThinkpalmUsecaseImplements interface {
-	GetPartnerId(ctx context.Context, clientID, clientSecret string) (string, string, error)
+	RegisterUser(ctx context.Context, user dstructures.LoginRequest) error
+	LoginUser(ctx context.Context, user dstructures.LoginRequest) error
 }
 
 // NewThinkpalmUseCase function assign values to THinkpalmUseCase
@@ -24,6 +26,10 @@ func NewThinkpalmUseCase(repo repodb.ThinkpalmRepoImplements) ThinkpalmUsecaseIm
 }
 
 // function helps to implement businuss logics with data
-func (think *ThinkpalmUseCase) GetPartnerId(ctx context.Context, clientID, clientSecret string) (string, string, error) {
-	return think.useCase.GetPartnerId(ctx, clientID, clientSecret)
+func (think *ThinkpalmUseCase) RegisterUser(ctx context.Context, user dstructures.LoginRequest) error {
+	return think.useCase.RegisterUser(ctx, user)
+}
+
+func (think *ThinkpalmUseCase) LoginUser(ctx context.Context, user dstructures.LoginRequest) error {
+	return think.useCase.LoginUser(ctx, user)
 }
