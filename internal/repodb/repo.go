@@ -18,6 +18,7 @@ type ThinkpalmRepo struct {
 type ThinkpalmRepoImplements interface {
 	RegisterUser(ctx context.Context, user dstructures.LoginRequest) error
 	LoginUser(ctx context.Context, user dstructures.LoginRequest) error
+	InsertClientConfig(map[string]interface{}, string, string) error
 }
 
 // NewTHinkpalmRepo used to assign values to both database and config
@@ -49,5 +50,26 @@ func (think *ThinkpalmRepo) LoginUser(ctx context.Context, user dstructures.Logi
 		return errors.New("repo login error" + err.Error())
 	}
 	return nil
+
+}
+
+func (think *ThinkpalmRepo) InsertClientConfig(formData map[string]interface{}, clientId string, clientSecret string) error {
+
+	_, err := think.repo.Exec(`
+	INSERT INTO client_configurations (relaystate, entityid, recipient, counsumervalidatorurl, slo, sso, samlnamedid, samlcertificate, clientid, clientsecret)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+`,
+		formData["relaystate"],
+		formData["entityid"],
+		formData["recipient"],
+		formData["counsumervalidatorurl"],
+		formData["slo"],
+		formData["sso"],
+		formData["samlnamedid"],
+		formData["samlcertificate"],
+		clientId,
+		clientSecret,
+	)
+	return err
 
 }

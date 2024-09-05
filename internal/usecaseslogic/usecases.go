@@ -16,6 +16,7 @@ type ThinkpalmUseCase struct {
 type ThinkpalmUsecaseImplements interface {
 	RegisterUser(ctx context.Context, user dstructures.LoginRequest) error
 	LoginUser(ctx context.Context, user dstructures.LoginRequest) error
+	InsertClientConfig(map[string]interface{}, string, string) error
 }
 
 // NewThinkpalmUseCase function assign values to THinkpalmUseCase
@@ -32,4 +33,7 @@ func (think *ThinkpalmUseCase) RegisterUser(ctx context.Context, user dstructure
 
 func (think *ThinkpalmUseCase) LoginUser(ctx context.Context, user dstructures.LoginRequest) error {
 	return think.useCase.LoginUser(ctx, user)
+}
+func (think *ThinkpalmUseCase) InsertClientConfig(formData map[string]interface{}, clientId string, clientSecret string) error {
+	return think.useCase.InsertClientConfig(formData, clientId, clientSecret)
 }

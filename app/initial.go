@@ -14,6 +14,7 @@ import (
 	"github.com/abhilasha336/thinkpalm/internal/constants"
 	"github.com/abhilasha336/thinkpalm/internal/controllers"
 	"github.com/abhilasha336/thinkpalm/internal/dstructures"
+	"github.com/abhilasha336/thinkpalm/internal/middlewares"
 	"github.com/abhilasha336/thinkpalm/internal/repodb"
 	"github.com/abhilasha336/thinkpalm/internal/repodb/driver"
 	"github.com/abhilasha336/thinkpalm/internal/usecaseslogic"
@@ -34,7 +35,7 @@ func InitialRun() {
 	// database connection
 	pgsqlDB, err := driver.ConnectDB(cfg.Db)
 	if err != nil {
-		logrus.Fatalf("unable to connect the database", err)
+		logrus.Fatal("unable to connect the database", err)
 		return
 	}
 
@@ -44,10 +45,10 @@ func InitialRun() {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
-	api := router.Group("/api")
+	api := router.Group("")
 
 	// m := middlewares.NewMiddlewares(cfg, pgsqlDB)
-	// api.Use(m.JwtMiddleware())
+	api.Use(middlewares.TokenValidationMiddleware())
 
 	// complete user related initialization
 	{
@@ -79,7 +80,7 @@ func initRouter() *gin.Engine {
 	// - Credentials share
 	// - Preflight requests cached for 12 hours
 	router.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"*", "http://localhost:8080"},
+		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{"PUT", "PATCH", "POST", "DELETE", "GET", "OPTIONS"},
 		AllowHeaders:     []string{"Origin", "Content-Type"},
 		ExposeHeaders:    []string{"Content-Length"},

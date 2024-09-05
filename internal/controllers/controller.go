@@ -47,5 +47,14 @@ func (think *ThinkpalmController) InitRoutes() {
 	think.router.GET("/failure", func(ctx *gin.Context) {
 		think.Failure(ctx)
 	})
+	think.router.GET("/client-register/token", func(ctx *gin.Context) {
+		think.ClientRegisterToken(ctx)
+	})
+	think.router.GET("/client-register-form", func(ctx *gin.Context) {
+		think.ClientRegisterForm(ctx)
+	})
+	think.router.POST("/client-register-form/submit", func(ctx *gin.Context) {
+		think.ClientRegisterFormSubmit(ctx)
+	})
 
 }
